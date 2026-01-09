@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import fastifyStatic from '@fastify/static';
 import { resolve, dirname } from 'path';
+import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { appConfig, setPublicUrl } from './config/index.js';
 import { initDatabase, apiRequestDb, systemConfigDb, shutdownDatabase } from './db/index.js';
@@ -57,10 +58,21 @@ await fastify.register(jwt, {
   secret: appConfig.jwtSecret,
 });
 
-await fastify.register(fastifyStatic, {
-  root: resolve(__dirname, '..', '..', 'web', 'dist'),
-  prefix: '/',
-});
+// 自动检测静态文件路径（兼容 Docker 和开发环境）
+const publicPath = resolve(__dirname, '..', 'public');
+const devPath = resolve(__dirname, '..', '..', 'web', 'dist');
+const staticPath = existsSync(publicPath) ? publicPath : devPath;
+
+if (existsSync(staticPath)) {
+  await fastify.register(fastifyStatic, {
+    root: staticPath,
+    prefix: '/',
+  });
+  memoryLogger.info(`静态文件服务已启用: ${staticPath}`, 'System');
+} else {
+  memoryLogger.warn('未找到前端构建产物，Web UI 将不可用', 'System');
+  memoryLogger.warn(`尝试的路径: ${publicPath}, ${devPath}`, 'System');
+}
 
 fastify.decorate('authenticate', async function(request: any, reply: any) {
   try {

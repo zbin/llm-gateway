@@ -1,0 +1,26 @@
+version: '3.8'
+
+# 开发环境 - 只启动 MySQL，后端在本地运行
+# 使用方式: docker-compose -f docker/docker-compose.dev.yml up -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: llm-gateway-mysql-dev
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-dev-data:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-llm_gateway}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-dev-data:

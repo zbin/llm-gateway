@@ -1,5 +1,13 @@
 # Bun 配置文件
 
+# npm registry 配置
+[install.registry]
+# 使用淘宝镜像
+# url = "https://registry.npmmirror.com"
+# 或者使用其他镜像：
+# url = "https://mirrors.huaweicloud.com/repository/npm/"  # 华为云
+url = "https://mirrors.cloud.tencent.com/npm/"  # 腾讯云
+
 # 包管理器配置
 [install]
 # 启用 workspace

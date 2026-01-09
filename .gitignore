@@ -19,10 +19,15 @@ data/
 *.db-shm
 *.db-wal
 
+# Docker
+docker-compose.override.yml
+.docker/
+
 # Configuration
 .env
 .env.local
 .env.*.local
+packages/**/.env.local
 
 # Logs
 *.log
